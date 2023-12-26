@@ -30,6 +30,7 @@ final class PlaytiniViewController: UIViewController {
         button.layer.borderColor = UIColor.gray.cgColor
         button.layer.borderWidth = 4
         button.addTarget(self, action: #selector(reducedCircleSize), for: .touchUpInside)
+        button.addGestureRecognizer(reducedGesture)
         return button
     }()
     
@@ -41,7 +42,18 @@ final class PlaytiniViewController: UIViewController {
         button.layer.borderColor = UIColor.gray.cgColor
         button.layer.borderWidth = 4
         button.addTarget(self, action: #selector(increasedCircleSize), for: .touchUpInside)
+        button.addGestureRecognizer(increasedGesture)
         return button
+    }()
+    
+    private lazy var increasedGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleIncreasedGesture(_:)))
+        return gesture
+    }()
+    
+    private lazy var reducedGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleReducedGesture(_:)))
+        return gesture
     }()
     
     private lazy var buttonStackView: UIStackView = {
@@ -53,6 +65,8 @@ final class PlaytiniViewController: UIViewController {
         stackView.distribution = .equalSpacing
         return stackView
     }()
+    
+    private var sizeChangingTimer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -117,6 +131,45 @@ final class PlaytiniViewController: UIViewController {
     @objc private func reducedCircleSize() {
         let newSize = max(rotatedCircle.bounds.size.width - 10, 30)
         animateCircleSize(to: newSize)
+    }
+    
+    @objc private func handleIncreasedGesture(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            startIncreasing()
+        case .ended, .cancelled:
+            stopChangingSize()
+        default:
+            break
+        }
+    }
+
+    @objc private func handleReducedGesture(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            startReducing()
+        case .ended, .cancelled:
+            stopChangingSize()
+        default:
+            break
+        }
+    }
+    
+    private func startIncreasing() {
+        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.increasedCircleSize()
+        }
+    }
+
+    private func startReducing() {
+        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.reducedCircleSize()
+        }
+    }
+
+    private func stopChangingSize() {
+        sizeChangingTimer?.invalidate()
+        sizeChangingTimer = nil
     }
     
     private func animateCircleSize(to newSize: CGFloat) {
