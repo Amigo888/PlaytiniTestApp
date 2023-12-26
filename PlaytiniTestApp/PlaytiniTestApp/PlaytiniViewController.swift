@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  PlaytiniViewController.swift
 //  PlaytiniTestApp
 //
 //  Created by Дмитрий Процак on 26.12.2023.
@@ -7,13 +7,11 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class PlaytiniViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .blue
     }
-
-
 }
 
