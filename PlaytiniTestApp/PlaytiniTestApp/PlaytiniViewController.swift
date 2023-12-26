@@ -10,13 +10,13 @@ import SnapKit
 
 final class PlaytiniViewController: UIViewController {
     
-    private lazy var rotatedCircle: UIView = {
-        let view = UIView()
-        view.backgroundColor = .gray
-        return view
-    }()
+//    private lazy var rotatedCircle: UIView = {
+//        let view = UIView()
+//        view.backgroundColor = .gray
+//        return view
+//    }()
     
-    private lazy var imageView: UIImageView = {
+    private lazy var rotatedCircle: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "ball"))
         imageView.contentMode = .scaleAspectFill
         return imageView
@@ -59,6 +59,7 @@ final class PlaytiniViewController: UIViewController {
         view.backgroundColor = .black
         addSubviews()
         setupConstraints()
+        rotateCircle()
     }
     
     override func viewDidLayoutSubviews() {
@@ -67,16 +68,11 @@ final class PlaytiniViewController: UIViewController {
     }
     
     private func addSubviews() {
-        rotatedCircle.addSubview(imageView)
         view.addSubview(rotatedCircle)
         view.addSubview(buttonStackView)
     }
     
     private func setupConstraints() {
-        imageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
         rotatedCircle.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.size.equalTo(80)
@@ -119,7 +115,7 @@ final class PlaytiniViewController: UIViewController {
     }
     
     @objc private func reducedCircleSize() {
-        let newSize = max(rotatedCircle.bounds.size.width - 10, 30) // Гарантируем, что размер не отрицательный
+        let newSize = max(rotatedCircle.bounds.size.width - 10, 30)
         animateCircleSize(to: newSize)
     }
     
@@ -130,5 +126,14 @@ final class PlaytiniViewController: UIViewController {
             }
             self?.view.layoutIfNeeded()
         }
+    }
+    
+    private func rotateCircle() {
+        let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotationAnimation.toValue = NSNumber(value: Double.pi * 2)
+        rotationAnimation.duration = 2.0
+        rotationAnimation.isCumulative = true
+        rotationAnimation.repeatCount = Float.greatestFiniteMagnitude
+        rotatedCircle.layer.add(rotationAnimation, forKey: "rotationAnimation")
     }
 }
