@@ -91,6 +91,9 @@ final class PlaytiniViewController: UIViewController {
     
     private var displayLink: CADisplayLink?
     
+    private var firstObjectCollisionDetected = false
+    private var secondObjectCollisionDetected = false
+    
     // MARK: - ViewDidLoad
     
     override func viewDidLoad() {
@@ -177,7 +180,7 @@ final class PlaytiniViewController: UIViewController {
     }
     
     private func animationsBottomLine() {
-        UIView.animateKeyframes(withDuration: 7.2, delay: 0.4) {
+        UIView.animateKeyframes(withDuration: 7.2, delay: 0.6) {
             self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
         } completion: { _ in
             let randomWidth = Int.random(in: 60...120)
@@ -278,12 +281,24 @@ final class PlaytiniViewController: UIViewController {
         let upLineFrame = horizontalUpLine.layer.presentation()?.frame ?? rotatedCircle.frame
         let downLineFrame = horizontalDownLine.layer.presentation()?.frame ?? rotatedCircle.frame
         
-        if circlePresentationFrame.intersects(upLineFrame) || circlePresentationFrame.intersects(downLineFrame) {
-            counter += 1
-            collisionCounter.text = "Collision counter: \(counter)"
+        if circlePresentationFrame.intersects(upLineFrame) {
+            if !firstObjectCollisionDetected {
+                firstObjectCollisionDetected = true
+                counter += 1
+                collisionCounter.text = "Collision counter: \(counter)"
+            }
+        } else {
+            firstObjectCollisionDetected = false
         }
-        else {
-            // print("Nothing")
+        
+        if circlePresentationFrame.intersects(downLineFrame) {
+            if !secondObjectCollisionDetected {
+                secondObjectCollisionDetected = true
+                counter += 1
+                collisionCounter.text = "Collision counter: \(counter)"
+            }
+        } else {
+            secondObjectCollisionDetected = false
         }
     }
 }
