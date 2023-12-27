@@ -163,37 +163,41 @@ final class PlaytiniViewController: UIViewController {
     }
     
     private func animationsTopLine() {
-        UIView.animateKeyframes(withDuration: 6.8, delay: 0.1) {
-            self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
-        } completion: { _ in
-            let randomWidth = Int.random(in: 50...120)
-            let randomHeight = Int.random(in: 15...35)
-            self.view.addSubview(self.horizontalUpLine)
-            self.horizontalUpLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
-            self.horizontalUpLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
-            self.horizontalUpLine.frame.origin.y = (self.view.bounds.height / 2) - CGFloat(randomHeight * 2)
-            UIView.animate(withDuration: 6.0) {
+        if counter < 5 {
+            UIView.animateKeyframes(withDuration: 6.8, delay: 0.1) {
                 self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
             } completion: { _ in
-                self.animationsTopLine()
+                let randomWidth = Int.random(in: 50...120)
+                let randomHeight = Int.random(in: 15...35)
+                self.view.addSubview(self.horizontalUpLine)
+                self.horizontalUpLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
+                self.horizontalUpLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
+                self.horizontalUpLine.frame.origin.y = (self.view.bounds.height / 2) - CGFloat(randomHeight * 2)
+                UIView.animate(withDuration: 6.0) {
+                    self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
+                } completion: { _ in
+                    self.animationsTopLine()
+                }
             }
         }
     }
     
     private func animationsBottomLine() {
-        UIView.animateKeyframes(withDuration: 7.2, delay: 0.6) {
-            self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
-        } completion: { _ in
-            let randomWidth = Int.random(in: 60...120)
-            let randomHeight = Int.random(in: 15...30)
-            self.view.addSubview(self.horizontalDownLine)
-            self.horizontalDownLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
-            self.horizontalDownLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
-            self.horizontalDownLine.frame.origin.y = (self.view.bounds.height / 2) + CGFloat(randomHeight * 2)
-            UIView.animate(withDuration: 6.0) {
+        if counter < 5 {
+            UIView.animateKeyframes(withDuration: 7.2, delay: 0.6) {
                 self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
             } completion: { _ in
-                self.animationsBottomLine()
+                let randomWidth = Int.random(in: 60...120)
+                let randomHeight = Int.random(in: 15...30)
+                self.view.addSubview(self.horizontalDownLine)
+                self.horizontalDownLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
+                self.horizontalDownLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
+                self.horizontalDownLine.frame.origin.y = (self.view.bounds.height / 2) + CGFloat(randomHeight * 2)
+                UIView.animate(withDuration: 6.0) {
+                    self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
+                } completion: { _ in
+                    self.animationsBottomLine()
+                }
             }
         }
     }
@@ -224,6 +228,14 @@ final class PlaytiniViewController: UIViewController {
         }
     }
     
+    private func resetGame() {
+        counter = 0
+        collisionCounter.text = "Collision counter: \(counter)"
+        animationsTopLine()
+        animationsBottomLine()
+        startCollisionDetection()
+    }
+    
     func rotateCircle() {
         let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotationAnimation.toValue = NSNumber(value: Double.pi * 2)
@@ -236,6 +248,15 @@ final class PlaytiniViewController: UIViewController {
     private func startCollisionDetection() {
         displayLink = CADisplayLink(target: self, selector: #selector(checkCollision))
         displayLink?.add(to: .current, forMode: .common)
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(title: "Game Over", message: "Your game has ended.", preferredStyle: .alert)
+        let retryAction = UIAlertAction(title: "Retry", style: .default) { _ in
+            self.resetGame()
+        }
+        alert.addAction(retryAction)
+        present(alert, animated: true, completion: nil)
     }
     
     // MARK: - Private @objc Methods
@@ -279,40 +300,47 @@ final class PlaytiniViewController: UIViewController {
     }
     
     @objc func checkCollision() {
-        let circlePresentationFrame = rotatedCircle.frame.insetBy(dx: .zero, dy: 1)
-        let upLineFrame = horizontalUpLine.layer.presentation()?.frame ?? rotatedCircle.frame
-        let downLineFrame = horizontalDownLine.layer.presentation()?.frame ?? rotatedCircle.frame
-        
-        if circlePresentationFrame.intersects(upLineFrame) {
-            if !firstObjectCollisionDetected {
-                firstObjectCollisionDetected = true
-                counter += 1
-                collisionCounter.text = "Collision counter: \(counter)"
-                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                    self.horizontalUpLine.alpha = 0
-                }, completion: { _ in
-                    self.horizontalUpLine.removeFromSuperview()
-                    self.horizontalUpLine.alpha = 1
-                })
+        if counter < 5 {
+            let circlePresentationFrame = rotatedCircle.frame.insetBy(dx: .zero, dy: 1)
+            let upLineFrame = horizontalUpLine.layer.presentation()?.frame ?? rotatedCircle.frame
+            let downLineFrame = horizontalDownLine.layer.presentation()?.frame ?? rotatedCircle.frame
+            
+            if circlePresentationFrame.intersects(upLineFrame) {
+                if !firstObjectCollisionDetected {
+                    firstObjectCollisionDetected = true
+                    counter += 1
+                    collisionCounter.text = "Collision counter: \(counter)"
+                    UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                        self.horizontalUpLine.alpha = 0
+                    }, completion: { _ in
+                        self.horizontalUpLine.removeFromSuperview()
+                        self.horizontalUpLine.alpha = 1
+                    })
+                }
+            } else {
+                firstObjectCollisionDetected = false
+            }
+            
+            if circlePresentationFrame.intersects(downLineFrame) {
+                if !secondObjectCollisionDetected {
+                    secondObjectCollisionDetected = true
+                    counter += 1
+                    collisionCounter.text = "Collision counter: \(counter)"
+                    UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                        self.horizontalDownLine.alpha = 0
+                    }, completion: { _ in
+                        self.horizontalDownLine.removeFromSuperview()
+                        self.horizontalDownLine.alpha = 1
+                    })
+                }
+            } else {
+                secondObjectCollisionDetected = false
             }
         } else {
-            firstObjectCollisionDetected = false
-        }
-        
-        if circlePresentationFrame.intersects(downLineFrame) {
-            if !secondObjectCollisionDetected {
-                secondObjectCollisionDetected = true
-                counter += 1
-                collisionCounter.text = "Collision counter: \(counter)"
-                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                    self.horizontalDownLine.alpha = 0
-                }, completion: { _ in
-                    self.horizontalDownLine.removeFromSuperview()
-                    self.horizontalDownLine.alpha = 1
-                })
-            }
-        } else {
-            secondObjectCollisionDetected = false
+            horizontalUpLine.layer.removeAllAnimations()
+            horizontalDownLine.layer.removeAllAnimations()
+            displayLink?.invalidate()
+            showAlert()
         }
     }
 }
