@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import AudioToolbox
 
 final class PlaytiniViewController: UIViewController {
     
@@ -310,6 +311,7 @@ final class PlaytiniViewController: UIViewController {
                     firstObjectCollisionDetected = true
                     counter += 1
                     collisionCounter.text = "Collision counter: \(counter)"
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
                     UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                         self.horizontalUpLine.alpha = 0
                     }, completion: { _ in
@@ -326,6 +328,7 @@ final class PlaytiniViewController: UIViewController {
                     secondObjectCollisionDetected = true
                     counter += 1
                     collisionCounter.text = "Collision counter: \(counter)"
+                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
                     UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
                         self.horizontalDownLine.alpha = 0
                     }, completion: { _ in
