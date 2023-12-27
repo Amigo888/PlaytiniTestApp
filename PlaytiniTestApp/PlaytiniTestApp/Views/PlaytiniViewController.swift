@@ -14,7 +14,7 @@ final class PlaytiniViewController: UIViewController {
     
     private lazy var collisionCounter: UILabel = {
         let label = UILabel()
-        label.text = "Collision counter: 5"
+        label.text = "Collision counter: 0"
         label.font = .systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemPink
         return label
@@ -22,6 +22,7 @@ final class PlaytiniViewController: UIViewController {
     
     private lazy var rotatedCircle: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "ball"))
+        imageView.backgroundColor = .red
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
@@ -86,6 +87,10 @@ final class PlaytiniViewController: UIViewController {
     
     private var sizeChangingTimer: Timer?
     
+    private var counter: Int = 0
+    
+    private var displayLink: CADisplayLink?
+    
     // MARK: - ViewDidLoad
     
     override func viewDidLoad() {
@@ -95,6 +100,7 @@ final class PlaytiniViewController: UIViewController {
         rotateCircle()
         animationsTopLine()
         animationsBottomLine()
+        startCollisionDetection()
     }
     
     // MARK: - ViewDidLayoutSubviews
@@ -154,7 +160,7 @@ final class PlaytiniViewController: UIViewController {
     }
     
     private func animationsTopLine() {
-        UIView.animateKeyframes(withDuration: 7.0, delay: 0.1) {
+        UIView.animateKeyframes(withDuration: 6.8, delay: 0.1) {
             self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
         } completion: { _ in
             let randomWidth = Int.random(in: 50...120)
@@ -171,7 +177,7 @@ final class PlaytiniViewController: UIViewController {
     }
     
     private func animationsBottomLine() {
-        UIView.animateKeyframes(withDuration: 7.0, delay: 0.4) {
+        UIView.animateKeyframes(withDuration: 7.2, delay: 0.4) {
             self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
         } completion: { _ in
             let randomWidth = Int.random(in: 60...120)
@@ -222,6 +228,11 @@ final class PlaytiniViewController: UIViewController {
         rotatedCircle.layer.add(rotationAnimation, forKey: "rotationAnimation")
     }
     
+    private func startCollisionDetection() {
+        displayLink = CADisplayLink(target: self, selector: #selector(checkCollision))
+        displayLink?.add(to: .current, forMode: .common)
+    }
+    
     // MARK: - Private @objc Methods
     
     @objc private func increasedCircleSize() {
@@ -259,6 +270,20 @@ final class PlaytiniViewController: UIViewController {
             stopChangingSize()
         default:
             break
+        }
+    }
+    
+    @objc func checkCollision() {
+        let circlePresentationFrame = rotatedCircle.frame.insetBy(dx: .zero, dy: 1)
+        let upLineFrame = horizontalUpLine.layer.presentation()?.frame ?? rotatedCircle.frame
+        let downLineFrame = horizontalDownLine.layer.presentation()?.frame ?? rotatedCircle.frame
+        
+        if circlePresentationFrame.intersects(upLineFrame) || circlePresentationFrame.intersects(downLineFrame) {
+            counter += 1
+            collisionCounter.text = "Collision counter: \(counter)"
+        }
+        else {
+            // print("Nothing")
         }
     }
 }
