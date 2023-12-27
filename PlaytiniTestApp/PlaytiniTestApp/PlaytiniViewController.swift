@@ -10,11 +10,13 @@ import SnapKit
 
 final class PlaytiniViewController: UIViewController {
     
-//    private lazy var rotatedCircle: UIView = {
-//        let view = UIView()
-//        view.backgroundColor = .gray
-//        return view
-//    }()
+    private lazy var collisionCounter: UILabel = {
+        let label = UILabel()
+        label.text = "Collision counter: 5"
+        label.font = .systemFont(ofSize: 18, weight: .medium)
+        label.textColor = .systemPink
+        return label
+    }()
     
     private lazy var rotatedCircle: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "ball"))
@@ -66,6 +68,20 @@ final class PlaytiniViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var horizontalLine: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 10
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private lazy var horizontalLineDublicate: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 10
+        view.backgroundColor = .white
+        return view
+    }()
+    
     private var sizeChangingTimer: Timer?
     
     override func viewDidLoad() {
@@ -74,6 +90,7 @@ final class PlaytiniViewController: UIViewController {
         addSubviews()
         setupConstraints()
         rotateCircle()
+        animations()
     }
     
     override func viewDidLayoutSubviews() {
@@ -81,19 +98,44 @@ final class PlaytiniViewController: UIViewController {
         setupCircleViews()
     }
     
+    private func animations() {
+        
+        UIView.animateKeyframes(withDuration: 7.0, delay: 0.1, options: .repeat) {
+            self.horizontalLine.frame.origin.x = -self.view.bounds.width
+        } completion: { _ in
+            self.horizontalLine.frame.size = CGSize(width: 200, height: 30) // Новые размеры
+        }
+        
+        UIView.animateKeyframes(withDuration: 6.0, delay: 0.4, options: .repeat) {
+            self.horizontalLineDublicate.frame.origin.x = -self.view.bounds.width
+        }
+    }
+
+    
     private func addSubviews() {
         view.addSubview(rotatedCircle)
         view.addSubview(buttonStackView)
+        view.addSubview(collisionCounter)
+        view.addSubview(horizontalLine)
+        view.addSubview(horizontalLineDublicate)
     }
     
     private func setupConstraints() {
+        horizontalLine.frame = CGRect(x: view.bounds.width + 70, y: (view.bounds.height / 2) - 40, width: 70, height: 20)
+        horizontalLineDublicate.frame = CGRect(x: view.bounds.width + 90, y: (view.bounds.height / 2) + 40, width: 90, height: 20)
+        
+        collisionCounter.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+        }
+        
         rotatedCircle.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(80)
+            make.size.equalTo(70)
         }
         
         buttonStackView.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(32)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
             make.leading.trailing.equalToSuperview().inset(32)
         }
         
@@ -119,7 +161,7 @@ final class PlaytiniViewController: UIViewController {
     
     @objc private func increasedCircleSize() {
         let currentSize = rotatedCircle.bounds.size.width
-        let maximumSize: CGFloat = 300
+        let maximumSize: CGFloat = 150
         
         var newSize = currentSize + 10
         if newSize > maximumSize {
@@ -143,7 +185,7 @@ final class PlaytiniViewController: UIViewController {
             break
         }
     }
-
+    
     @objc private func handleReducedGesture(_ sender: UILongPressGestureRecognizer) {
         switch sender.state {
         case .began:
@@ -160,13 +202,13 @@ final class PlaytiniViewController: UIViewController {
             self?.increasedCircleSize()
         }
     }
-
+    
     private func startReducing() {
         sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             self?.reducedCircleSize()
         }
     }
-
+    
     private func stopChangingSize() {
         sizeChangingTimer?.invalidate()
         sizeChangingTimer = nil
