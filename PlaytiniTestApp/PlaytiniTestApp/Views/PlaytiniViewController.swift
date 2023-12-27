@@ -168,6 +168,7 @@ final class PlaytiniViewController: UIViewController {
         } completion: { _ in
             let randomWidth = Int.random(in: 50...120)
             let randomHeight = Int.random(in: 15...35)
+            self.view.addSubview(self.horizontalUpLine)
             self.horizontalUpLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
             self.horizontalUpLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
             self.horizontalUpLine.frame.origin.y = (self.view.bounds.height / 2) - CGFloat(randomHeight * 2)
@@ -185,6 +186,7 @@ final class PlaytiniViewController: UIViewController {
         } completion: { _ in
             let randomWidth = Int.random(in: 60...120)
             let randomHeight = Int.random(in: 15...30)
+            self.view.addSubview(self.horizontalDownLine)
             self.horizontalDownLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
             self.horizontalDownLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
             self.horizontalDownLine.frame.origin.y = (self.view.bounds.height / 2) + CGFloat(randomHeight * 2)
@@ -286,6 +288,12 @@ final class PlaytiniViewController: UIViewController {
                 firstObjectCollisionDetected = true
                 counter += 1
                 collisionCounter.text = "Collision counter: \(counter)"
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                    self.horizontalUpLine.alpha = 0
+                }, completion: { _ in
+                    self.horizontalUpLine.removeFromSuperview()
+                    self.horizontalUpLine.alpha = 1
+                })
             }
         } else {
             firstObjectCollisionDetected = false
@@ -296,6 +304,12 @@ final class PlaytiniViewController: UIViewController {
                 secondObjectCollisionDetected = true
                 counter += 1
                 collisionCounter.text = "Collision counter: \(counter)"
+                UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                    self.horizontalDownLine.alpha = 0
+                }, completion: { _ in
+                    self.horizontalDownLine.removeFromSuperview()
+                    self.horizontalDownLine.alpha = 1
+                })
             }
         } else {
             secondObjectCollisionDetected = false
