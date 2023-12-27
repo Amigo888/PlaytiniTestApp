@@ -58,14 +58,30 @@
 		5F454BD92B3B6188007C5392 /* PlaytiniTestApp */ = {
 			isa = PBXGroup;
 			children = (
-				5F454BDA2B3B6188007C5392 /* AppDelegate.swift */,
-				5F454BDC2B3B6188007C5392 /* SceneDelegate.swift */,
-				5F454BDE2B3B6188007C5392 /* PlaytiniViewController.swift */,
-				5F454BE32B3B618A007C5392 /* Assets.xcassets */,
-				5F454BE52B3B618A007C5392 /* LaunchScreen.storyboard */,
-				5F454BE82B3B618A007C5392 /* Info.plist */,
+				5F72C1E72B3C4FC100D67303 /* Views */,
+				5F72C1E62B3C4FA700D67303 /* SupportingFiles */,
 			);
 			path = PlaytiniTestApp;
+			sourceTree = "<group>";
+		};
+		5F72C1E62B3C4FA700D67303 /* SupportingFiles */ = {
+			isa = PBXGroup;
+			children = (
+				5F454BE32B3B618A007C5392 /* Assets.xcassets */,
+				5F454BE82B3B618A007C5392 /* Info.plist */,
+				5F454BDA2B3B6188007C5392 /* AppDelegate.swift */,
+				5F454BDC2B3B6188007C5392 /* SceneDelegate.swift */,
+			);
+			path = SupportingFiles;
+			sourceTree = "<group>";
+		};
+		5F72C1E72B3C4FC100D67303 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5F454BE52B3B618A007C5392 /* LaunchScreen.storyboard */,
+				5F454BDE2B3B6188007C5392 /* PlaytiniViewController.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,7 +308,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PlaytiniTestApp/Info.plist;
+				INFOPLIST_FILE = PlaytiniTestApp/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -318,7 +334,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = PlaytiniTestApp/Info.plist;
+				INFOPLIST_FILE = PlaytiniTestApp/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;

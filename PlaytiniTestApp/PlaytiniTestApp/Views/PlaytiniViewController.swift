@@ -10,6 +10,8 @@ import SnapKit
 
 final class PlaytiniViewController: UIViewController {
     
+    // MARK: - Private Properties
+    
     private lazy var collisionCounter: UILabel = {
         let label = UILabel()
         label.text = "Collision counter: 5"
@@ -68,14 +70,14 @@ final class PlaytiniViewController: UIViewController {
         return stackView
     }()
     
-    private lazy var horizontalLine: UIView = {
+    private lazy var horizontalUpLine: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 10
         view.backgroundColor = .white
         return view
     }()
     
-    private lazy var horizontalLineDublicate: UIView = {
+    private lazy var horizontalDownLine: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 10
         view.backgroundColor = .white
@@ -84,45 +86,37 @@ final class PlaytiniViewController: UIViewController {
     
     private var sizeChangingTimer: Timer?
     
+    // MARK: - ViewDidLoad
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
         addSubviews()
         setupConstraints()
         rotateCircle()
-        animations()
+        animationsTopLine()
+        animationsBottomLine()
     }
+    
+    // MARK: - ViewDidLayoutSubviews
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setupCircleViews()
     }
     
-    private func animations() {
-        
-        UIView.animateKeyframes(withDuration: 7.0, delay: 0.1, options: .repeat) {
-            self.horizontalLine.frame.origin.x = -self.view.bounds.width
-        } completion: { _ in
-            self.horizontalLine.frame.size = CGSize(width: 200, height: 30) // Новые размеры
-        }
-        
-        UIView.animateKeyframes(withDuration: 6.0, delay: 0.4, options: .repeat) {
-            self.horizontalLineDublicate.frame.origin.x = -self.view.bounds.width
-        }
-    }
-
+    // MARK: - Private Methods
     
     private func addSubviews() {
         view.addSubview(rotatedCircle)
         view.addSubview(buttonStackView)
         view.addSubview(collisionCounter)
-        view.addSubview(horizontalLine)
-        view.addSubview(horizontalLineDublicate)
+        view.addSubview(horizontalUpLine)
+        view.addSubview(horizontalDownLine)
     }
     
     private func setupConstraints() {
-        horizontalLine.frame = CGRect(x: view.bounds.width + 70, y: (view.bounds.height / 2) - 40, width: 70, height: 20)
-        horizontalLineDublicate.frame = CGRect(x: view.bounds.width + 90, y: (view.bounds.height / 2) + 40, width: 90, height: 20)
+        horizontalUpLine.frame = CGRect(x: view.bounds.width + 70, y: (view.bounds.height / 2) - 55, width: 70, height: 20)
+        horizontalDownLine.frame = CGRect(x: view.bounds.width + 90, y: (view.bounds.height / 2) + 40, width: 90, height: 20)
         
         collisionCounter.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -131,7 +125,7 @@ final class PlaytiniViewController: UIViewController {
         
         rotatedCircle.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.size.equalTo(70)
+            make.size.equalTo(60)
         }
         
         buttonStackView.snp.makeConstraints { make in
@@ -158,6 +152,77 @@ final class PlaytiniViewController: UIViewController {
         increasedButton.layer.cornerRadius = increasedButton.bounds.size.width / 2
         increasedButton.clipsToBounds = true
     }
+    
+    private func animationsTopLine() {
+        UIView.animateKeyframes(withDuration: 7.0, delay: 0.1) {
+            self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
+        } completion: { _ in
+            let randomWidth = Int.random(in: 50...120)
+            let randomHeight = Int.random(in: 15...35)
+            self.horizontalUpLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
+            self.horizontalUpLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
+            self.horizontalUpLine.frame.origin.y = (self.view.bounds.height / 2) - CGFloat(randomHeight * 2)
+            UIView.animate(withDuration: 6.0) {
+                self.horizontalUpLine.frame.origin.x = -self.view.bounds.width
+            } completion: { _ in
+                self.animationsTopLine()
+            }
+        }
+    }
+    
+    private func animationsBottomLine() {
+        UIView.animateKeyframes(withDuration: 7.0, delay: 0.4) {
+            self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
+        } completion: { _ in
+            let randomWidth = Int.random(in: 60...120)
+            let randomHeight = Int.random(in: 15...30)
+            self.horizontalDownLine.frame.size = CGSize(width: randomWidth, height: randomHeight)
+            self.horizontalDownLine.frame.origin.x = self.view.bounds.width + CGFloat(randomWidth)
+            self.horizontalDownLine.frame.origin.y = (self.view.bounds.height / 2) + CGFloat(randomHeight * 2)
+            UIView.animate(withDuration: 6.0) {
+                self.horizontalDownLine.frame.origin.x = -self.view.bounds.width
+            } completion: { _ in
+                self.animationsBottomLine()
+            }
+        }
+    }
+    
+    private func startIncreasing() {
+        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.increasedCircleSize()
+        }
+    }
+    
+    private func startReducing() {
+        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.reducedCircleSize()
+        }
+    }
+    
+    private func stopChangingSize() {
+        sizeChangingTimer?.invalidate()
+        sizeChangingTimer = nil
+    }
+    
+    private func animateCircleSize(to newSize: CGFloat) {
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            self?.rotatedCircle.snp.updateConstraints { make in
+                make.size.equalTo(newSize)
+            }
+            self?.view.layoutIfNeeded()
+        }
+    }
+    
+    func rotateCircle() {
+        let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotationAnimation.toValue = NSNumber(value: Double.pi * 2)
+        rotationAnimation.duration = 2.0
+        rotationAnimation.isCumulative = true
+        rotationAnimation.repeatCount = Float.greatestFiniteMagnitude
+        rotatedCircle.layer.add(rotationAnimation, forKey: "rotationAnimation")
+    }
+    
+    // MARK: - Private @objc Methods
     
     @objc private func increasedCircleSize() {
         let currentSize = rotatedCircle.bounds.size.width
@@ -195,40 +260,5 @@ final class PlaytiniViewController: UIViewController {
         default:
             break
         }
-    }
-    
-    private func startIncreasing() {
-        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            self?.increasedCircleSize()
-        }
-    }
-    
-    private func startReducing() {
-        sizeChangingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            self?.reducedCircleSize()
-        }
-    }
-    
-    private func stopChangingSize() {
-        sizeChangingTimer?.invalidate()
-        sizeChangingTimer = nil
-    }
-    
-    private func animateCircleSize(to newSize: CGFloat) {
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            self?.rotatedCircle.snp.updateConstraints { make in
-                make.size.equalTo(newSize)
-            }
-            self?.view.layoutIfNeeded()
-        }
-    }
-    
-    private func rotateCircle() {
-        let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
-        rotationAnimation.toValue = NSNumber(value: Double.pi * 2)
-        rotationAnimation.duration = 2.0
-        rotationAnimation.isCumulative = true
-        rotationAnimation.repeatCount = Float.greatestFiniteMagnitude
-        rotatedCircle.layer.add(rotationAnimation, forKey: "rotationAnimation")
     }
 }
